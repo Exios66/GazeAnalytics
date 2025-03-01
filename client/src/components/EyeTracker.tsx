@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Loader2, AlertCircle } from "lucide-react";
 import { checkEyeTrackingSupport } from "@/lib/utils";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import "./EyeTracker.css";
 
 interface EyeTrackerProps {
   sessionId: string;
@@ -232,8 +233,7 @@ export function EyeTracker({ sessionId, isEnabled, onTrackingChange }: EyeTracke
 
       <canvas
         ref={canvasRef}
-        className="w-full h-[300px] bg-white"
-        style={{ cursor: "crosshair" }}
+        className="eye-tracker-canvas"
       />
     </div>
   );

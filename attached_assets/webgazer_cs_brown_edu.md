@@ -1,12 +1,14 @@
-URL: https://webgazer.cs.brown.edu/
+URL: <https://webgazer.cs.brown.edu/>
 ---
-# WebGazer.js
 
-## Democratizing Webcam Eye Tracking on the Browser
+WebGazer.js
+===========
+
+Democratizing Webcam Eye Tracking on the Browser
+---------------------------------------------
 
 WebGazer.js is an eye tracking library that uses common webcams to infer the eye-gaze locations of web visitors on a page in real time. The eye tracking model it contains self-calibrates by watching web visitors interact with the web page and trains a mapping between the features of the eye and positions on the screen. WebGazer.js is written entirely in JavaScript and with only a few lines of code can be integrated in any website that wishes to better understand
 their visitors and transform their user experience. WebGazer.js runs entirely in the client browser, so no video data needs to be sent to a server, and it requires the user's consent to access their webcam.
-
 
 * * *
 
@@ -86,7 +88,6 @@ Continually supported and open source for 6+ years
 
 To use WebGazer.js you need to add the webgazer.js file as a script in your website:
 
-
 ```html hljs xml
  /* WebGazer.js library */
 <script src="webgazer.js" type="text/javascript" >
@@ -96,16 +97,15 @@ _Be aware that when you do local development and you might need to run locally a
 
 Once the script is included, the `webgazer` object is introduced into the global namespace. `webgazer` has methods for controlling the operation of WebGazer.js allowing us to start and stop it, add callbacks, or change out modules. The two most important methods on `webgazer` are `webgazer.begin()` and `webgazer.setGazeListener()`. `webgazer.begin()` starts the data collection that enables the predictions, so it's important to call this early on. Once `webgazer.begin()` has been called, WebGazer.js is ready to start giving predictions. `webgazer.setGazeListener()` is a convenient way to access these predictions. This method invokes a callback you provide every few milliseconds to provide the current gaze location of a user. If you don't need constant access to this data stream, you may alternatively call `webgazer.getCurrentPrediction()` which will give you a prediction at the moment when it is called.
 
-
 ```javascript hljs
 
 webgazer.setGazeListener(function(data, elapsedTime) {
-	if (data == null) {
-		return;
-	}
-	var xprediction = data.x; //these x coordinates are relative to the viewport
-	var yprediction = data.y; //these y coordinates are relative to the viewport
-	console.log(elapsedTime); //elapsed time is based on time since begin was called
+ if (data == null) {
+  return;
+ }
+ var xprediction = data.x; //these x coordinates are relative to the viewport
+ var yprediction = data.y; //these y coordinates are relative to the viewport
+ console.log(elapsedTime); //elapsed time is based on time since begin was called
 }).begin();
 
 ```
@@ -116,8 +116,8 @@ Here is the alternate method of getting predictions where you can request a gaze
 
 var prediction = webgazer.getCurrentPrediction();
 if (prediction) {
-	var x = prediction.x;
-	var y = prediction.y;
+ var x = prediction.x;
+ var y = prediction.y;
 }
 
 ```
@@ -189,7 +189,6 @@ prediction.y; //now always in the bounds of the viewport
 
 WebGazer.js uses:
 
-
 - [getUserMedia/Stream API](https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia) to get access to the webcam, which supports [these browsers](http://caniuse.com/#feat=stream).
 - [IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API) (used by [localforage](https://localforage.github.io/localForage/)) for storing data to the browser, which supports [these browsers](https://caniuse.com/#feat=indexeddb).
 
@@ -215,7 +214,8 @@ WebGazer.js uses:
 
 * * *
 
-## Download Options
+Download Options
+--------------
 
 #### Download
 
@@ -224,7 +224,6 @@ Download WebGazer.js
 #### Dataset
 
 A webcam video dataset comprising 51 participants for training and evaluating eye tracking models. Please see the [documentation and download link](https://webgazer.cs.brown.edu/data).
-
 
 #### Build from source
 
@@ -250,7 +249,6 @@ npm run build
 
 See how easy it is to integrate WebGazer.js on any webpage. With just a few clicks you will get real-time predictions. Follow the popup instructions to click through 9 calibration points on the screen whilst looking at the cursor.
 
-
 Try Live Demo
 
 ![Collision demo](https://webgazer.cs.brown.edu/media/example/collision.png)
@@ -259,7 +257,6 @@ Try Live Demo
 
 Move the orange ball with your eyes and create collisions with the blue balls. Train WebGazer.js by clicking in various locations within the screen, while looking at your cursor.
 
-
 Try Live Demo
 
 ![SearchGazer](https://webgazer.cs.brown.edu/media/example/google_serp.png)
@@ -267,7 +264,6 @@ Try Live Demo
 #### WebGazer on Search Engines (legacy)
 
 We have created SearchGazer.js, a library that incorporates WebGazer in Search Engines such as Bing and Google. Note that this uses an older version of WebGazer, so is here just as a legacy demo.
-
 
 Try SearchGazer.js
 
@@ -282,44 +278,44 @@ _**Note:** The current iteration of WebGazer no longer corresponds with the WebG
 If you use WebGazer.js please cite:
 
 `
-				@inproceedings{papoutsaki2016webgazer,
-				  author     = {Alexandra Papoutsaki and Patsorn Sangkloy and James Laskey and Nediyana Daskalova and Jeff Huang and James Hays},
-				  title      = {WebGazer: Scalable Webcam Eye Tracking Using User Interactions},
-				  booktitle  = {Proceedings of the 25th International Joint Conference on Artificial Intelligence (IJCAI)},
-				  pages      = {3839--3845},
-				  year       = {2016},
-				  organization={AAAI}
-				}
-			`
+    @inproceedings{papoutsaki2016webgazer,
+      author     = {Alexandra Papoutsaki and Patsorn Sangkloy and James Laskey and Nediyana Daskalova and Jeff Huang and James Hays},
+      title      = {WebGazer: Scalable Webcam Eye Tracking Using User Interactions},
+      booktitle  = {Proceedings of the 25th International Joint Conference on Artificial Intelligence (IJCAI)},
+      pages      = {3839--3845},
+      year       = {2016},
+      organization={AAAI}
+    }
+   `
 
 [![pdf icon](https://webgazer.cs.brown.edu/media/pdf.svg)](https://jeffhuang.com/Final_SearchGazer_CHIIR17.pdf)
 
 If you use [SearchGazer.js](https://webgazer.cs.brown.edu/search) please cite the following paper:
 
 `
-				@inproceedings{papoutsaki2017searchgazer,
-				  author = {Alexandra Papoutsaki and James Laskey and Jeff Huang},
-				  title = {SearchGazer: Webcam Eye Tracking for Remote Studies of Web Search},
-				  booktitle = {Proceedings of the ACM SIGIR Conference on Human Information Interaction \& Retrieval (CHIIR)},
-				  year = {2017},
-				  organization={ACM}
-				}
-			`
+    @inproceedings{papoutsaki2017searchgazer,
+      author = {Alexandra Papoutsaki and James Laskey and Jeff Huang},
+      title = {SearchGazer: Webcam Eye Tracking for Remote Studies of Web Search},
+      booktitle = {Proceedings of the ACM SIGIR Conference on Human Information Interaction \& Retrieval (CHIIR)},
+      year = {2017},
+      organization={ACM}
+    }
+   `
 
 [![pdf icon](https://webgazer.cs.brown.edu/media/pdf.svg)](https://jeffhuang.com/Final_EyeTyper_ETRA18.pdf)
 
 For the [WebGazer webcam dataset](https://webgazer.cs.brown.edu/data) and findings about gaze behavior during typing:
 
 `
-				@inproceedings{papoutsaki2018eye,
-				  title={The eye of the typer: a benchmark and analysis of gaze behavior during typing},
-				  author={Papoutsaki, Alexandra and Gokaslan, Aaron and Tompkin, James and He, Yuze and Huang, Jeff},
-				  booktitle={Proceedings of the 2018 ACM Symposium on Eye Tracking Research \& Applications},
-				  pages={16},
-				  year={2018},
-				  organization={ACM}
-				}
-			`
+    @inproceedings{papoutsaki2018eye,
+      title={The eye of the typer: a benchmark and analysis of gaze behavior during typing},
+      author={Papoutsaki, Alexandra and Gokaslan, Aaron and Tompkin, James and He, Yuze and Huang, Jeff},
+      booktitle={Proceedings of the 2018 ACM Symposium on Eye Tracking Research \& Applications},
+      pages={16},
+      year={2018},
+      organization={ACM}
+    }
+   `
 
 * * *
 
