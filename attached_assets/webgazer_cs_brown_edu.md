@@ -39,8 +39,7 @@ Tap to unmute
 If playback doesn't begin shortly, try restarting your device.
 
 More videos
-
-## More videos
+-----------
 
 You're signed out
 
@@ -78,13 +77,15 @@ Multiple gaze prediction models
 
 Continually supported and open source for 6+ years
 
-#### Want to be notified about updates?
+Want to be notified about updates?
+--------------------------------
 
 [Subscribe](https://docs.google.com/forms/d/e/1FAIpQLSeTCgnwF1gjrc1O8mfJ_5TmT_TLowFQ2DUhsollmqPG84pAFQ/viewform?usp=pp_url&entry.1299571007=WebGazer:+self-calibrating+online+webcam+eye+tracking&entry.1760653896=webgazer+frontpage)
 
 * * *
 
-## Usage
+Usage
+-----
 
 To use WebGazer.js you need to add the webgazer.js file as a script in your website:
 
@@ -122,15 +123,18 @@ if (prediction) {
 
 ```
 
-### Advanced Usage
+Advanced Usage
+--------------
 
 There are several features that WebGazer.js enables beyond the example shown so far.
 
-#### Saving Data Between Sessions
+Saving Data Between Sessions
+---------------------------
 
 WebGazer.js can save and restore the training data between browser sessions by storing data to the browser using [localforage](https://localforage.github.io/localForage/), which uses IndexedDB. This occurs automatically with every click in the window. If you want each user session to be independent make sure that you set `window.saveDataAcrossSessions` in `main.js` to `false`.
 
-#### Changing in Use Regression and Tracker Modules
+Changing in Use Regression and Tracker Modules
+----------------------------------------------
 
 At the heart of WebGazer.js are the tracker and regression modules. The tracker module controls how eyes are detected and the regression module determines how the regression model is learned and how predictions are made based on the eye patches extracted from the tracker module. These modules can be swapped in and out at any time. We hope that this will make it easy to extend and adapt WebGazer.js and welcome any developers that want to contribute.
 
@@ -160,7 +164,8 @@ Here are all the regression modules that come by default with WebGazer.js. Let u
 - weightedRidge - a weight ridge regression model with newest user interactions contributing more to the model.
 - threadedRidge - a faster implementation of ridge regression that uses threads.
 
-#### Pause and Resume
+Pause and Resume
+----------------
 
 It may be necessary to pause the data collection and predictions of WebGazer.js for performance reasons.
 
@@ -171,7 +176,8 @@ webgazer.resume(); //data collection resumes, gaze callback will be called again
 
 ```
 
-#### Util and Params
+Util and Params
+---------------
 
 We provide some useful functions and objects in `webgazer.util`. The webgazer.params object also contains some useful parameters to tweak to control video fidelity (trades off speed and accuracy) and sample rate for mouse movements.
 
@@ -185,7 +191,8 @@ prediction.y; //now always in the bounds of the viewport
 
 * * *
 
-## Browser Compatibility
+Browser Compatibility
+--------------------
 
 WebGazer.js uses:
 
@@ -194,38 +201,39 @@ WebGazer.js uses:
 
 ![Google Chrome](https://webgazer.cs.brown.edu/media/browser/chrome.svg)
 
-#### Google Chrome
+Google Chrome
 
 ![Microsoft Edge](https://webgazer.cs.brown.edu/media/browser/edge.svg)
 
-#### Microsoft Edge
+Microsoft Edge
 
 ![Mozilla Firefox](https://webgazer.cs.brown.edu/media/browser/firefox.svg)
 
-#### Mozilla Firefox
+Mozilla Firefox
 
 ![Opera](https://webgazer.cs.brown.edu/media/browser/opera.svg)
 
-#### Opera
+Opera
 
 ![Safari](https://webgazer.cs.brown.edu/media/browser/safari.svg)
 
-#### Safari
+Safari
 
 * * *
 
 Download Options
 --------------
 
-#### Download
+Download
 
 Download WebGazer.js
 
-#### Dataset
+Dataset
 
 A webcam video dataset comprising 51 participants for training and evaluating eye tracking models. Please see the [documentation and download link](https://webgazer.cs.brown.edu/data).
 
-#### Build from source
+Build from source
+-----------------
 
 The GitHub repository contains the [source code and version history](https://github.com/brownhci/WebGazer).
 
@@ -241,11 +249,12 @@ npm run build
 
 * * *
 
-## Examples
+Examples
+--------
 
 ![Empty Webpage Demo](https://webgazer.cs.brown.edu/media/example/empty.png)
 
-#### Calibration on Empty Page
+Calibration on Empty Page
 
 See how easy it is to integrate WebGazer.js on any webpage. With just a few clicks you will get real-time predictions. Follow the popup instructions to click through 9 calibration points on the screen whilst looking at the cursor.
 
@@ -253,7 +262,7 @@ Try Live Demo
 
 ![Collision demo](https://webgazer.cs.brown.edu/media/example/collision.png)
 
-#### Ball Collision Game
+Ball Collision Game
 
 Move the orange ball with your eyes and create collisions with the blue balls. Train WebGazer.js by clicking in various locations within the screen, while looking at your cursor.
 
@@ -261,7 +270,8 @@ Try Live Demo
 
 ![SearchGazer](https://webgazer.cs.brown.edu/media/example/google_serp.png)
 
-#### WebGazer on Search Engines (legacy)
+WebGazer on Search Engines (legacy)
+----------------------------------
 
 We have created SearchGazer.js, a library that incorporates WebGazer in Search Engines such as Bing and Google. Note that this uses an older version of WebGazer, so is here just as a legacy demo.
 
@@ -269,7 +279,8 @@ Try SearchGazer.js
 
 * * *
 
-## Publications
+Publications
+------------
 
 _**Note:** The current iteration of WebGazer no longer corresponds with the WebGazer described in the following publications. The legacy version as described in the paper can be found in the [commit history](https://github.com/brownhci/WebGazer/tree/2a4a70cb49b2d568a09362e1b52fd3bd025cd38d) on GitHub._
 
@@ -319,7 +330,8 @@ For the [WebGazer webcam dataset](https://webgazer.cs.brown.edu/data) and findin
 
 * * *
 
-## Press
+Press
+-----
 
 Websites that have featured WebGazer.js:
 
@@ -341,33 +353,34 @@ Online discussions and shares in:
 
 * * *
 
-## Who We Are
+Who We Are
+-----------
 
 ![Alexandra Papoutsaki](https://webgazer.cs.brown.edu/media/people/alexpap.jpg)
 
-#### [Alexandra Papoutsaki](http://www.cs.pomona.edu/~apapoutsaki/)
+[Alexandra Papoutsaki](http://www.cs.pomona.edu/~apapoutsaki/)
 
 ![Aaron Gokaslan](https://webgazer.cs.brown.edu/media/people/aaron.jpg)
 
-#### [Aaron Gokaslan](https://skylion007.github.io/)
+[Aaron Gokaslan](https://skylion007.github.io/)
 
 ![Ida De Smet](https://webgazer.cs.brown.edu/media/people/ida.jpg)
 
-#### [Ida De Smet](https://www.linkedin.com/in/idakdesmet/)
+[Ida De Smet](https://www.linkedin.com/in/idakdesmet/)
 
 ![Xander Koo](https://webgazer.cs.brown.edu/media/people/xander.jpg)
 
-#### [Xander Koo](https://www.linkedin.com/in/xanderkoo/)
+[Xander Koo](https://www.linkedin.com/in/xanderkoo/)
 
 ![James Tompkin](https://webgazer.cs.brown.edu/media/people/james.jpg)
 
-#### [James Tompkin](https://jamestompkin.com/)
+[James Tompkin](https://jamestompkin.com/)
 
 ![Jeff Huang](https://webgazer.cs.brown.edu/media/people/jeff.jpg)
 
-#### [Jeff Huang](https://jeffhuang.com/)
+[Jeff Huang](https://jeffhuang.com/)
 
-### Other Contributors
+Other Contributors
 
 - [Nediyana Daskalova](https://nediyana.github.io/)
 - [James Hays](https://www.cc.gatech.edu/~hays/)
@@ -380,7 +393,7 @@ Online discussions and shares in:
 
 Want to help? See these open issues tagged ["help wanted"](https://github.com/brownhci/WebGazer/issues?q=is%3Aopen+is%3Aissue+label%3A%22help+wanted%22)
 
-### Acknowledgements
+Acknowledgements
 
 Webgazer is based on the research originally done at Brown University, with recent work and maintenance jointly between Pomona College and Brown University. The current maintainer is Jeff Huang.
 
@@ -390,7 +403,8 @@ This research is supported by NSF grants IIS-1464061, IIS-1552663, a Seed Award 
 
 * * *
 
-## License
+License
+-------
 
 Copyright (C) 2016-2023 [Brown WebGazer Team](https://webgazer.cs.brown.edu/)
 
