@@ -1,11 +1,15 @@
 import { useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import * as d3 from "d3";
+import { hexbin as d3Hexbin } from "d3-hexbin";
 import type { GazeData } from "@shared/schema";
+import type { HexbinBin } from "d3-hexbin";
 
 interface HeatmapProps {
   sessionId: string;
 }
+
+type Point = [number, number];
 
 export function Heatmap({ sessionId }: HeatmapProps) {
   const svgRef = useRef<SVGSVGElement>(null);
@@ -28,20 +32,20 @@ export function Heatmap({ sessionId }: HeatmapProps) {
       .domain([0, 10])
       .interpolator(d3.interpolateRgb("#FEF0D9", "#B30000"));
 
-    const hexbin = d3.hexbin()
+    const hexbinGenerator = d3Hexbin<Point>()
       .radius(20)
       .extent([[0, 0], [width, height]]);
 
-    const points = gazeData.map(d => [d.x, d.y]);
-    const bins = hexbin(points);
+    const points = gazeData.map(d => [d.x, d.y] as Point);
+    const bins = hexbinGenerator(points);
 
     svg.selectAll("path")
       .data(bins)
       .enter()
       .append("path")
-      .attr("d", hexbin.hexagon())
-      .attr("transform", d => `translate(${d.x},${d.y})`)
-      .attr("fill", d => colorScale(d.length))
+      .attr("d", hexbinGenerator.hexagon())
+      .attr("transform", (d: HexbinBin<Point>) => `translate(${d.x},${d.y})`)
+      .attr("fill", (d: HexbinBin<Point>) => colorScale(d.length))
       .attr("opacity", 0.7);
 
   }, [gazeData]);
