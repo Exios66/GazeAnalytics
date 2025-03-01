@@ -1,4 +1,6 @@
-import { GazeData, InsertGazeData, Session, InsertSession } from "@shared/schema";
+import { gazeData, sessions, type GazeData, type InsertGazeData, type Session, type InsertSession } from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 
 export interface IStorage {
   createSession(session: InsertSession): Promise<Session>;
@@ -8,57 +10,51 @@ export interface IStorage {
   getGazeData(sessionId: string): Promise<GazeData[]>;
 }
 
-export class MemStorage implements IStorage {
-  private sessions: Map<string, Session>;
-  private gazeData: Map<number, GazeData>;
-  private currentGazeId: number;
-
-  constructor() {
-    this.sessions = new Map();
-    this.gazeData = new Map();
-    this.currentGazeId = 1;
-  }
-
+export class DatabaseStorage implements IStorage {
   async createSession(insertSession: InsertSession): Promise<Session> {
-    const session: Session = {
-      id: this.sessions.size + 1,
-      sessionId: insertSession.sessionId,
-      calibrationData: insertSession.calibrationData,
-      startTime: new Date(),
-      endTime: null,
-    };
-    this.sessions.set(session.sessionId, session);
+    const [session] = await db
+      .insert(sessions)
+      .values(insertSession)
+      .returning();
     return session;
   }
 
   async updateSession(sessionId: string, endTime: Date): Promise<Session> {
-    const session = this.sessions.get(sessionId);
-    if (!session) throw new Error("Session not found");
-    
-    const updatedSession = { ...session, endTime };
-    this.sessions.set(sessionId, updatedSession);
-    return updatedSession;
+    const [session] = await db
+      .update(sessions)
+      .set({ endTime })
+      .where(eq(sessions.sessionId, sessionId))
+      .returning();
+
+    if (!session) {
+      throw new Error("Session not found");
+    }
+
+    return session;
   }
 
   async getSession(sessionId: string): Promise<Session | undefined> {
-    return this.sessions.get(sessionId);
+    const [session] = await db
+      .select()
+      .from(sessions)
+      .where(eq(sessions.sessionId, sessionId));
+    return session;
   }
 
   async addGazeData(data: InsertGazeData): Promise<GazeData> {
-    const gazeData: GazeData = {
-      id: this.currentGazeId++,
-      timestamp: new Date(),
-      ...data,
-    };
-    this.gazeData.set(gazeData.id, gazeData);
-    return gazeData;
+    const [gazeDataEntry] = await db
+      .insert(gazeData)
+      .values(data)
+      .returning();
+    return gazeDataEntry;
   }
 
   async getGazeData(sessionId: string): Promise<GazeData[]> {
-    return Array.from(this.gazeData.values()).filter(
-      (data) => data.sessionId === sessionId
-    );
+    return db
+      .select()
+      .from(gazeData)
+      .where(eq(gazeData.sessionId, sessionId));
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
