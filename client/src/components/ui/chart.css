@@ -1,0 +1,11 @@
+/* Chart component styles */
+.indicator-color-custom {
+  --color-bg: var(--indicator-color, currentColor);
+  --color-border: var(--indicator-color, currentColor);
+}
+
+/* This will be used as a fallback */
+[class^="indicator-color-"] {
+  --color-bg: currentColor;
+  --color-border: currentColor;
+} 

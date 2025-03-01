@@ -2,6 +2,7 @@ import * as React from "react"
 import * as RechartsPrimitive from "recharts"
 
 import { cn } from "@/lib/utils"
+import "./chart.css"
 
 // Format: { THEME_NAME: CSS_SELECTOR }
 const THEMES = { light: "", dark: ".dark" } as const
@@ -213,14 +214,14 @@ const ChartTooltipContent = React.forwardRef<
                               "w-0 border-[1.5px] border-dashed bg-transparent":
                                 indicator === "dashed",
                               "my-0.5": nestLabel && indicator === "dashed",
-                            }
+                            },
+                            "indicator-color-custom"
                           )}
-                          style={
-                            {
-                              "--color-bg": indicatorColor,
-                              "--color-border": indicatorColor,
-                            } as React.CSSProperties
-                          }
+                          ref={(el) => {
+                            if (el && indicatorColor) {
+                              el.style.setProperty('--indicator-color', indicatorColor);
+                            }
+                          }}
                         />
                       )
                     )}
@@ -298,9 +299,11 @@ const ChartLegendContent = React.forwardRef<
                 <itemConfig.icon />
               ) : (
                 <div
-                  className="h-2 w-2 shrink-0 rounded-[2px]"
-                  style={{
-                    backgroundColor: item.color,
+                  className="h-2 w-2 shrink-0 rounded-[2px] indicator-color-custom"
+                  ref={(el) => {
+                    if (el && item.color) {
+                      el.style.setProperty('--indicator-color', item.color);
+                    }
                   }}
                 />
               )}

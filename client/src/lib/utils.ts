@@ -44,12 +44,12 @@ export function checkWebGLSupport(): {
   error?: string;
 } {
   // Try different WebGL contexts
-  const contextNames = ['webgl2', 'webgl', 'experimental-webgl'];
+  const contextNames = ['webgl2', 'webgl', 'experimental-webgl'] as const;
   const canvas = document.createElement('canvas');
 
   for (const contextName of contextNames) {
     try {
-      const gl = canvas.getContext(contextName);
+      const gl = canvas.getContext(contextName) as WebGLRenderingContext | WebGL2RenderingContext | null;
       if (gl) {
         // Additional WebGL capability checks
         const extension = gl.getExtension('WEBGL_debug_renderer_info');
