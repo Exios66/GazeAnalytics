@@ -4,15 +4,32 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Loader2, AlertCircle } from "lucide-react";
+import { checkEyeTrackingSupport } from "@/lib/utils";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface EyeTrackerProps {
   sessionId: string;
+  isEnabled: boolean;
+  onTrackingChange: (enabled: boolean) => void;
 }
 
-export function EyeTracker({ sessionId }: EyeTrackerProps) {
+export function EyeTracker({ sessionId, isEnabled, onTrackingChange }: EyeTrackerProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { toast } = useToast();
-  const [isTracking, setIsTracking] = useState(true);
+  const [isInitializing, setIsInitializing] = useState(false);
+  const [isSupported, setIsSupported] = useState<boolean | null>(null);
+  const [supportError, setSupportError] = useState<string | null>(null);
+
+  // Check device support on mount
+  useEffect(() => {
+    const checkSupport = async () => {
+      const support = await checkEyeTrackingSupport();
+      setIsSupported(support.supported);
+      setSupportError(support.error || null);
+    };
+    checkSupport();
+  }, []);
 
   const { mutate: saveGazeData } = useMutation({
     mutationFn: async (data: { x: number; y: number }) => {
@@ -55,13 +72,34 @@ export function EyeTracker({ sessionId }: EyeTrackerProps) {
     let gazeListener: ((data: any, timestamp: number) => void) | null = null;
 
     const setupTracking = async () => {
-      try {
-        // @ts-ignore - WebGazer is loaded via CDN
-        if (!window.webgazer) {
-          throw new Error("WebGazer not initialized");
-        }
+      if (!isSupported) {
+        onTrackingChange(false);
+        return;
+      }
 
-        if (isTracking) {
+      if (isEnabled) {
+        setIsInitializing(true);
+        try {
+          // @ts-ignore - WebGazer is loaded via CDN
+          if (!window.webgazer) {
+            throw new Error("WebGazer not initialized");
+          }
+
+          // Initialize WebGazer if needed
+          // @ts-ignore
+          if (!window.webgazer.isReady()) {
+            // @ts-ignore
+            await window.webgazer
+              .setRegression('ridge')
+              .setTracker('TFFacemesh')
+              .begin();
+
+            // Wait for initialization
+            // @ts-ignore
+            await new Promise((resolve) => window.webgazer.showVideoPreview(false).showPredictionPoints(false).ready(resolve));
+          }
+
+          // Set up gaze listener
           gazeListener = (data: any, timestamp: number) => {
             if (data == null) return;
             const { x, y } = data;
@@ -71,49 +109,68 @@ export function EyeTracker({ sessionId }: EyeTrackerProps) {
 
           // @ts-ignore
           await window.webgazer.setGazeListener(gazeListener);
-        } else {
-          // Clear canvas and remove listener when tracking is disabled
+
+          toast({
+            title: "Eye tracking enabled",
+            description: "Now tracking eye movements",
+          });
+        } catch (error) {
+          console.error("Error managing eye tracker:", error);
+          onTrackingChange(false);
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: error instanceof Error ? error.message : "Failed to manage eye tracking",
+          });
+        } finally {
+          setIsInitializing(false);
+        }
+      } else {
+        try {
+          // Clean up tracking
           ctx.clearRect(0, 0, canvas.width, canvas.height);
           // @ts-ignore
           if (window.webgazer && typeof window.webgazer.clearGazeListener === 'function') {
             // @ts-ignore
             window.webgazer.clearGazeListener();
           }
+
+          toast({
+            title: "Eye tracking disabled",
+            description: "Eye tracking has been paused",
+          });
+        } catch (error) {
+          console.error("Error cleaning up eye tracker:", error);
         }
-      } catch (error) {
-        console.error("Error managing eye tracker:", error);
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: isTracking ? "Failed to start eye tracking" : "Failed to stop eye tracking",
-        });
       }
     };
 
     setupTracking();
 
     return () => {
-      try {
-        if (gazeListener) {
+      if (gazeListener) {
+        try {
           // @ts-ignore
           if (window.webgazer && typeof window.webgazer.clearGazeListener === 'function') {
             // @ts-ignore
             window.webgazer.clearGazeListener();
           }
+        } catch (error) {
+          console.error("Error cleaning up eye tracker:", error);
         }
-      } catch (error) {
-        console.error("Error cleaning up eye tracker:", error);
       }
     };
-  }, [isTracking]); // Only re-run when isTracking changes
+  }, [isEnabled, isSupported]); // Re-run when isEnabled or isSupported changes
 
-  const handleTrackingToggle = (enabled: boolean) => {
-    setIsTracking(enabled);
-    toast({
-      title: enabled ? "Eye tracking enabled" : "Eye tracking disabled",
-      description: enabled ? "Now tracking eye movements" : "Eye tracking has been paused",
-    });
-  };
+  if (isSupported === null) {
+    return (
+      <div className="border border-gray-200 rounded-lg p-4">
+        <div className="flex items-center justify-center h-[300px]">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="border border-gray-200 rounded-lg p-4">
@@ -121,13 +178,31 @@ export function EyeTracker({ sessionId }: EyeTrackerProps) {
         <h3 className="text-lg font-medium">Live Eye Tracking</h3>
         <div className="flex items-center space-x-2">
           <Switch
-            checked={isTracking}
-            onCheckedChange={handleTrackingToggle}
+            checked={isEnabled}
+            onCheckedChange={onTrackingChange}
             id="tracking-toggle"
+            disabled={!isSupported || isInitializing}
           />
-          <Label htmlFor="tracking-toggle">Tracking {isTracking ? 'On' : 'Off'}</Label>
+          <Label htmlFor="tracking-toggle">
+            {isInitializing ? (
+              <div className="flex items-center">
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Initializing...
+              </div>
+            ) : (
+              `Tracking ${isEnabled ? 'On' : 'Off'}`
+            )}
+          </Label>
         </div>
       </div>
+
+      {!isSupported && supportError && (
+        <Alert variant="destructive" className="mb-4">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{supportError}</AlertDescription>
+        </Alert>
+      )}
+
       <canvas
         ref={canvasRef}
         className="w-full h-[300px] bg-white"

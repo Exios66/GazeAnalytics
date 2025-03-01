@@ -8,17 +8,26 @@ import { Calibration } from "@/components/Calibration";
 import { Heatmap } from "@/components/Heatmap";
 import { Analytics } from "@/components/Analytics";
 import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Home() {
   const [sessionId] = useState(nanoid());
   const [isCalibrated, setIsCalibrated] = useState(false);
   const [isTracking, setIsTracking] = useState(false);
+  const { toast } = useToast();
 
   const { mutate: createSession } = useMutation({
     mutationFn: async () => {
       return apiRequest("POST", "/api/sessions", {
         sessionId,
         calibrationData: null,
+      });
+    },
+    onError: (error) => {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to create tracking session",
       });
     },
   });
@@ -38,6 +47,13 @@ export default function Home() {
     };
   }, []);
 
+  const handleTrackingToggle = (enabled: boolean) => {
+    setIsTracking(enabled);
+    if (!enabled) {
+      endSession();
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#ECF0F1] p-4">
       <div className="max-w-7xl mx-auto space-y-4">
@@ -45,29 +61,38 @@ export default function Home() {
           <h1 className="text-2xl font-bold text-[#2C3E50] mb-4">
             Eye Tracking Visualization
           </h1>
-          
+
           {!isCalibrated ? (
             <Calibration
-              onCalibrationComplete={() => setIsCalibrated(true)}
+              onCalibrationComplete={() => {
+                setIsCalibrated(true);
+                setIsTracking(true);
+                toast({
+                  title: "Calibration complete",
+                  description: "Starting eye tracking visualization",
+                });
+              }}
               sessionId={sessionId}
             />
           ) : (
             <div className="space-y-4">
               <div className="flex items-center gap-4">
                 <Button
-                  onClick={() => setIsTracking(!isTracking)}
+                  onClick={() => handleTrackingToggle(!isTracking)}
                   variant={isTracking ? "destructive" : "default"}
                 >
                   {isTracking ? "Stop Tracking" : "Start Tracking"}
                 </Button>
               </div>
 
-              {isTracking && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <EyeTracker sessionId={sessionId} />
-                  <Heatmap sessionId={sessionId} />
-                </div>
-              )}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <EyeTracker 
+                  sessionId={sessionId} 
+                  isEnabled={isTracking}
+                  onTrackingChange={handleTrackingToggle}
+                />
+                <Heatmap sessionId={sessionId} />
+              </div>
 
               <Analytics sessionId={sessionId} />
             </div>
