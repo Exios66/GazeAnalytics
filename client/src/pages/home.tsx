@@ -79,7 +79,7 @@ export default function Home() {
               <div className="flex items-center gap-4">
                 <Button
                   onClick={() => handleTrackingToggle(!isTracking)}
-                  variant={isTracking ? "destructive" : "default"}
+                  className={isTracking ? "bg-destructive text-destructive-foreground hover:bg-destructive/90" : ""}
                 >
                   {isTracking ? "Stop Tracking" : "Start Tracking"}
                 </Button>
