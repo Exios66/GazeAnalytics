@@ -54,34 +54,43 @@ export function EyeTracker({ sessionId }: EyeTrackerProps) {
 
     let gazeListener: ((data: any, timestamp: number) => void) | null = null;
 
-    if (isTracking) {
+    const setupTracking = async () => {
       try {
         // @ts-ignore - WebGazer is loaded via CDN
         if (!window.webgazer) {
           throw new Error("WebGazer not initialized");
         }
 
-        gazeListener = (data: any, timestamp: number) => {
-          if (data == null) return;
-          const { x, y } = data;
-          drawGaze(x, y);
-          saveGazeData({ x, y });
-        };
+        if (isTracking) {
+          gazeListener = (data: any, timestamp: number) => {
+            if (data == null) return;
+            const { x, y } = data;
+            drawGaze(x, y);
+            saveGazeData({ x, y });
+          };
 
-        // @ts-ignore
-        window.webgazer.setGazeListener(gazeListener);
+          // @ts-ignore
+          await window.webgazer.setGazeListener(gazeListener);
+        } else {
+          // Clear canvas and remove listener when tracking is disabled
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          // @ts-ignore
+          if (window.webgazer && typeof window.webgazer.clearGazeListener === 'function') {
+            // @ts-ignore
+            window.webgazer.clearGazeListener();
+          }
+        }
       } catch (error) {
-        console.error("Error initializing eye tracker:", error);
+        console.error("Error managing eye tracker:", error);
         toast({
           variant: "destructive",
           title: "Error",
-          description: "Failed to initialize eye tracking",
+          description: isTracking ? "Failed to start eye tracking" : "Failed to stop eye tracking",
         });
       }
-    } else {
-      // Clear canvas when tracking is disabled
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
+    };
+
+    setupTracking();
 
     return () => {
       try {
@@ -96,7 +105,15 @@ export function EyeTracker({ sessionId }: EyeTrackerProps) {
         console.error("Error cleaning up eye tracker:", error);
       }
     };
-  }, [isTracking]);
+  }, [isTracking]); // Only re-run when isTracking changes
+
+  const handleTrackingToggle = (enabled: boolean) => {
+    setIsTracking(enabled);
+    toast({
+      title: enabled ? "Eye tracking enabled" : "Eye tracking disabled",
+      description: enabled ? "Now tracking eye movements" : "Eye tracking has been paused",
+    });
+  };
 
   return (
     <div className="border border-gray-200 rounded-lg p-4">
@@ -105,7 +122,7 @@ export function EyeTracker({ sessionId }: EyeTrackerProps) {
         <div className="flex items-center space-x-2">
           <Switch
             checked={isTracking}
-            onCheckedChange={setIsTracking}
+            onCheckedChange={handleTrackingToggle}
             id="tracking-toggle"
           />
           <Label htmlFor="tracking-toggle">Tracking {isTracking ? 'On' : 'Off'}</Label>
