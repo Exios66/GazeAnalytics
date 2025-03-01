@@ -20,13 +20,30 @@ export function EyeTracker({ sessionId, isEnabled, onTrackingChange }: EyeTracke
   const [isInitializing, setIsInitializing] = useState(false);
   const [isSupported, setIsSupported] = useState<boolean | null>(null);
   const [supportError, setSupportError] = useState<string | null>(null);
+  const [fallbackAvailable, setFallbackAvailable] = useState<boolean>(false);
 
   // Check device support on mount
   useEffect(() => {
     const checkSupport = async () => {
-      const support = await checkEyeTrackingSupport();
-      setIsSupported(support.supported);
-      setSupportError(support.error || null);
+      try {
+        const support = await checkEyeTrackingSupport();
+        setIsSupported(support.supported);
+        setSupportError(support.error || null);
+        setFallbackAvailable(support.fallbackAvailable || false);
+
+        if (!support.supported) {
+          onTrackingChange(false);
+          toast({
+            variant: "destructive",
+            title: "Device Compatibility Issue",
+            description: support.error || "Your device doesn't support eye tracking",
+          });
+        }
+      } catch (error) {
+        setIsSupported(false);
+        setSupportError("Failed to check device compatibility");
+        onTrackingChange(false);
+      }
     };
     checkSupport();
   }, []);
@@ -117,6 +134,9 @@ export function EyeTracker({ sessionId, isEnabled, onTrackingChange }: EyeTracke
         } catch (error) {
           console.error("Error managing eye tracker:", error);
           onTrackingChange(false);
+          setIsSupported(false);
+          setSupportError(error instanceof Error ? error.message : "Failed to initialize eye tracking");
+
           toast({
             variant: "destructive",
             title: "Error",
@@ -160,7 +180,7 @@ export function EyeTracker({ sessionId, isEnabled, onTrackingChange }: EyeTracke
         }
       }
     };
-  }, [isEnabled, isSupported]); // Re-run when isEnabled or isSupported changes
+  }, [isEnabled, isSupported]);
 
   if (isSupported === null) {
     return (
@@ -196,10 +216,17 @@ export function EyeTracker({ sessionId, isEnabled, onTrackingChange }: EyeTracke
         </div>
       </div>
 
-      {!isSupported && supportError && (
+      {!isSupported && (
         <Alert variant="destructive" className="mb-4">
           <AlertCircle className="h-4 w-4" />
-          <AlertDescription>{supportError}</AlertDescription>
+          <AlertDescription>
+            {supportError || "Your device doesn't support eye tracking"}
+            {fallbackAvailable && (
+              <div className="mt-2">
+                Note: Mouse tracking is available as a fallback option.
+              </div>
+            )}
+          </AlertDescription>
         </Alert>
       )}
 
